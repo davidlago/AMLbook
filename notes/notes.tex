@@ -1,0 +1,220 @@
+% Header, title and document setup
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,caption}
+
+\setlength{\topmargin}{-.5in}
+\setlength{\textheight}{9in}
+\setlength{\oddsidemargin}{.125in}
+\setlength{\textwidth}{6.25in}
+
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Octave,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\begin{document}
+\title{Notes from \emph{Learning From Data}}
+\author{David Lago}
+\maketitle
+
+
+
+\section {The learning problem}
+Components of learning:
+\begin{enumerate}
+\item The \textbf{input} $\mathbf{x} \in \mathcal{X}$
+\item The \textbf{output} $y \in \mathcal{Y}$
+\item The \emph{unknown} \textbf{target function} $f\colon\mathcal{X}\longrightarrow\mathcal{Y}$
+\item The \textbf{training dataset} $\mathcal{D}=\{(\mathbf{x}_1,y_1),\dotsb1,(\mathbf{x}_N,y_N)\}\text{, where }y_i=f(\mathbf{x}_i)\;\forall i=1,\dotsb,N$
+\item The \textbf{hypothesis set} $\mathcal{H}$, which is a set of functions $h\colon\mathcal{X}\longrightarrow\mathcal{Y}$
+\item The \textbf{learning algorithm} $\mathcal{A}$, which based on the training dataset $\mathcal{D}$ chooses from among all $h\in\mathcal{H}$ the one that best approximates $f$
+\item The \textbf{final hypothesis} $g\approx f$, as chosen by $\mathcal{A}$
+\end{enumerate}
+
+We are going to call $\mathcal{A}$ and $\mathcal{H}$ our \textbf{learning model}, since they are the only two components we have control over.\\
+
+One simple learning model is the \textbf{perceptron model}, whose hyphothesis functions are of the form:
+\begin{equation}
+h(\mathbf{x})=\operatorname{sign}((\sum_{i=1}^{d}w_ix_i)+b),
+\label{perceptron_model}
+\end{equation}
+where
+
+\begin{itemize}
+  \item $x_1,\dotsb,x_d$ are the components of vector $\mathbf{x}$
+  \item $y\in\mathcal{Y}=\{+1,-1\}$
+  \item $b$ is the threshold ($y=+1\Rightarrow\sum_{i=1}^dw_ix_i>-b$)
+\end{itemize}
+
+The \textbf{perceptron learning algorithm}, or PLA, will look for different $h$'s by varying the weights vector $\mathbf{w}$ and the bias $b$. To simplify equation \ref{perceptron_model}, we can add $b$ to the weights vector as $w_0$, so that $\mathbf{w}=[w_0,w_1,\dotsb,w_d]^T$, and add $x_0=1$ to $\mathbf{x}$ so that now $\mathbf{x}=[1,x_1,\dotsb,x_d]^T$ ($x$ and $w$ are \emph{column vectors}). With these changes, the perceptron hypothesis equation can be reduced to:
+\begin{equation}
+h(\mathbf{x})=\operatorname{sign}(\mathbf{w}^T\mathbf{x}).
+\end{equation}
+
+PLA is an iterative algorithm. Its steps are:
+\begin{enumerate}
+\item Initialize $\mathbf{w}$ (any value, $\mathbf{w}=[0,\dotsb,0]^T$ for example)
+\item Calculate $h(\mathbf{x})$ with current $\mathbf{w}$
+\item Compare $h(\mathbf{x_i})$ with $y_i$ for all $i=1,\dotsb,N$
+\item If no mismatches, return current $h$ as our $g$
+\item Otherwise, pick one of the misclassified $\mathbf{x}$'s and update the weights vector: $$\mathbf{w}(t+1)=\mathbf{w}(t)+y(t)\mathbf{x}(t).$$ 
+\end{enumerate}
+
+\textbf{Exercise 1.3}\\
+
+Show that $y(t)\mathbf{w}^T(t)\mathbf{x}(t)<0$ for a misclassified point:
+\begin{eqnarray*}
+y(t)\mathbf{w}^T(t)\mathbf{x}(t)&=&-\operatorname{sign}(\overbrace{\mathbf{w}^T(t)\mathbf{x}(t)}^a)\overbrace{\mathbf{w}^T(t)\mathbf{x}(t)}^a\\
+&=&-\operatorname{sign}(a)a\\
+&<&0.
+\end{eqnarray*}
+
+Show that $y(t)\mathbf{w}^T(t+1)\mathbf{x}(t)>y(t)\mathbf{w}^T(t)\mathbf{x}(t)$:
+
+\begin{eqnarray*}
+y(t)\mathbf{w}^T(t+1)\mathbf{x}(t)&>&y(t)\mathbf{w}^T(t)\mathbf{x}(t)\\
+y(t)(\mathbf{w}^T(t)+y(t)\mathbf{x}^T)(t))\mathbf{x}(t)&>&y(t)\mathbf{w}^T(t)\mathbf{x}(t)\\
+y(t)\mathbf{w}^T(t)\mathbf{x}(t)+y^2(t)\mathbf{x}^T(t)\mathbf{x}(t)&>&y(t)\mathbf{w}^T(t)\mathbf{x}(t)\\
+\overbrace{y^2(t)}^{>0}\overbrace{\mathbf{x}^T(t)\mathbf{x}(t)}^{>0}&>&0.
+\end{eqnarray*}
+
+Show that $\mathbf{w}(t+1)$ is an improvement over $\mathbf{w}(t)$:\\
+
+In order to show this, we have to prove that $h_{\mathbf{w}(t+1)}(\mathbf{x}_i)=y_i=-h_{\mathbf{w}(t)}(\mathbf{x}_i)$ for the misclassified $\mathbf{x}_i$:
+
+\begin{eqnarray*}
+h_{\mathbf{w}(t+1)}(\mathbf{x}_i)&=&\operatorname{sign}(\mathbf{w}^T(t+1)\mathbf{x}(t))\\
+&=&\operatorname{sign}((\mathbf{w}^T(t)+y(t)\mathbf{x}^T(t))\mathbf{x}(t))\\
+&=&\operatorname{sign}(\overbrace{\mathbf{w}^T(t)\mathbf{x}(t)}^{y(t)}+y(t)\mathbf{x}^T(t)\mathbf{x}(t))\\
+&=&\operatorname{sign}(y(t)(\overbrace{1+\mathbf{x}^T(t)\mathbf{x}(t))}^{>0})\\
+&=&\operatorname{sign}(y(t))\\
+&=&y(t).
+\end{eqnarray*}
+
+\textbf{Exercise 1.4}\\
+
+The solution to this exercise has been implemented in Octave. Figures \ref{ex_1_4.m}, \ref{perceptron.m} and \ref{f.m} contain the source code:
+
+\begin{figure}[h]
+\captionsetup{justification=raggedright,
+singlelinecheck=false
+}
+\caption{\texttt{ex\_1\_4.m}}
+\begin{lstlisting}
+% This exercise creates a random target function f. Generates 20 samples, and then applies
+% the perceptron algorithm to predict
+
+% Generate 20 random points between -10 and 10
+x=[ones(20,1) 20.*rand(20,2)-10];
+
+% Initial w for f
+w0 = [1; 2; 4];
+
+% Obtain their f(x)
+for i = 1:20
+    y(i) = f(x(i,:)',w0);
+end
+y = y';
+
+% Plot our sample
+plot(x(:,2)(y>0),x(:,3)(y>0),'ro');
+hold on;
+plot(x(:,2)(y<0),x(:,3)(y<0),'bx');
+
+% Plot target f in black
+axis=-10:0.1:10;
+fline=(-w0(1)/w0(3))-(w0(2)/w0(3))*axis;
+plot(axis,fline,'k');
+
+
+% Use perceptron to calculate g
+w = perceptron(x,y);
+
+% Plot g in green
+gline=(-w(1)/w(3))-(w(2)/w(3))*axis;
+plot(axis,gline,'g');
+legend('+1', '-1', 'f', 'g','location','north');
+legend('boxoff');
+hold off;
+\end{lstlisting}
+\label{ex_1_4.m}
+\end{figure}
+
+\begin{figure}[h]
+\captionsetup{justification=raggedright,
+singlelinecheck=false
+}
+\caption{\texttt{perceptron.m}}
+\begin{lstlisting}
+function w = perceptron(x,y)
+
+    % Initialize w to all zeros
+    m = size(x)(1);
+    n = size(x)(2);
+    w=zeros(n,1);
+
+    found = true;
+    iter = 0;
+    maxiter = 1000;
+
+    while (found) % Repeat while misclassified points exist (or maxiter reached)
+        
+        found = false;
+        iter++;
+        if (iter == maxiter)
+            break;
+        end
+
+        % Calculate output with current w
+        y2 = sign(w'*x')';
+
+        % See if there is any misclassified point
+        for i=1:m
+            if (y(i)!=y2(i))
+                found = true;
+
+                % Adjust weights
+                w=w+(y(i)*x(i,:))';
+
+                break;
+            end
+        end
+
+    end
+\end{lstlisting}
+\label{perceptron.m}
+\end{figure}
+
+\begin{figure}[h]
+\captionsetup{justification=raggedright,
+singlelinecheck=false
+}
+\caption{\texttt{f.m}}
+\begin{lstlisting}
+function y = f(x,w)
+  
+    y = sign(w'*x);
+\end{lstlisting}
+\label{f.m}
+\end{figure}
+
+\end{document}

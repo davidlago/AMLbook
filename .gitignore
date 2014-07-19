@@ -1,0 +1,5 @@
+*.log
+*.aux
+*.dvi
+*.gz
+octave-workspace
