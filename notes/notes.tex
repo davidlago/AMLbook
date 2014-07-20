@@ -9,6 +9,7 @@
 
 \usepackage{listings}
 \usepackage{color}
+\usepackage{float}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -114,7 +115,7 @@ h_{\mathbf{w}(t+1)}(\mathbf{x}_i)&=&\operatorname{sign}(\mathbf{w}^T(t+1)\mathbf
 
 The solution to this exercise has been implemented in Octave. Figures \ref{ex_1_4.m}, \ref{perceptron.m} and \ref{f.m} contain the source code:
 
-\begin{figure}[h]
+\begin{figure}[H]
 \captionsetup{justification=raggedright,
 singlelinecheck=false
 }
@@ -159,7 +160,7 @@ hold off;
 \label{ex_1_4.m}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \captionsetup{justification=raggedright,
 singlelinecheck=false
 }
@@ -204,7 +205,7 @@ function w = perceptron(x,y)
 \label{perceptron.m}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \captionsetup{justification=raggedright,
 singlelinecheck=false
 }
@@ -216,5 +217,30 @@ function y = f(x,w)
 \end{lstlisting}
 \label{f.m}
 \end{figure}
+
+If we have a probability distribution whose mean $\mu$ we are trying to know by means of extracting random samples and observing their proportion $\nu$, the \textbf{Hoeffding inequality} bounds the difference between $\mu$ and $\nu$ as follows:
+
+\begin{equation}
+P[|\nu-\mu|>\epsilon]\leq 2e^{-2\epsilon^2N}\text{ for any $\epsilon > 0$}.
+\label{hoeffding1}
+\end{equation} 
+
+As the sample size $N$ increases, it becomes exponentially less likely that $\nu$ will deviate from $\mu$ by more than $\epsilon$. Only $N$ affects the bound, not the size of the (unknown) population.
+
+Translating this into our learning model, we can see our unknown distribution as our input space $\mathcal{X}$, with $\mu$ being the fraction of inputs $\mathbf{x}$ for which $h(\mathbf{x})\neq f(\mathbf{x})$ (the hypothesis incorrectly predicts the value for that input). In the same way, our sample would be our dataset $\mathcal{D}$, and $\nu$ the proportion of $\mathcal{X}$ for which $h$ incorrectly fits the sample. If we define $E_{in}(h)$ (\emph{in error sample}) as the fraction of $\mathcal{D}$ where $f$ and $h$ disagree, and $E_{out}$ (\emph{out of error sample}) as the fraction of $\mathcal{X}$ where $f$ and $h$ disagree, equation \ref{hoeffding1} can be rewritten as follows:
+
+
+$$E_{in}(h)=\frac{1}{N}\sum_{n=1}^N[[h(\mathbf{x}_n)\neq f(\mathbf{x}_n)]],\; E_{out}(h)=\mathbb{P}[h(\mathbf{x})\neq f(\mathbf{x})]$$
+\begin{equation}
+P[|E_{in}(h)-E_{out}(h)|>\epsilon]\leq 2e^{-2\epsilon^2N}\text{ for any $\epsilon > 0$},
+\label{hoeffdings2}
+\end{equation}
+where operator $[[\text{statement}]]$ is equal to 1 if statement is true, 0 otherwise. Extending equation \ref{hoeffdings2} for $M$ possible $h$'s in $\mathcal{H}$:
+\begin{equation}
+P[|E_{in}(h)-E_{out}(h)|>\epsilon]\leq 2Me^{-2\epsilon^2N}\text{ for any $\epsilon > 0$},
+\label{hoeffdings3}
+\end{equation}
+
+It is because of Hoeffding's that we can use $E_{in}$ as a proxy for $E_{out}$. We'll try to find an $h$ that makes $E_{in}\approx0$. There is a tradeoff: we want to make $\mathcal{H}$ as simple as possible so that $M$ is small and the bounds dictated by equation \ref{hoeffdings3} are tighter, but at the same time we want to make $\mathcal{H}$ complex enough so that it gives us more flexibility to fit the data well.
 
 \end{document}
